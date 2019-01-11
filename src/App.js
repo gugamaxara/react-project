@@ -1,80 +1,120 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
 
 
+class ProductRow extends Component{
+  render(){
+    const product = this.props.product;
+    const name = product.stocked == true ? product.name : 
+      <span style={{color:'red'}}>
+          {product.name}
+      </span>;
 
-function Login(props) {
-  return (
-    <button onClick={props.onClick}>
-      Login
-    </button>
-  )
-}
-
-function Logout(props) {
-  return (
-    <button onClick={props.onClick}>
-      Logout
-    </button>
-  )
-}
-
-function UserGreeting() {
-  return <h1>Welcome Back ! </h1>
-}
-
-function GuestGreeting() {
-  return <h1>Please Register</h1>
-}
-
-function Greeting(props) {
-  const isLoggedIn = props.isLoggedIn;
-  if (isLoggedIn) {
-    return <UserGreeting />;
+    return(
+      <tr>
+        <td>{name}</td>
+        <td>{product.price}</td>
+      </tr>
+    )
   }
-  return <GuestGreeting />;
 }
 
-class App extends Component {
+class ProductCategoryRow extends Component{
+  render() {
+    const category = this.props.category;
+    return (
+      <tr>
+        <th colSpan='2'>{this.props.category}</th>
+      </tr>
+    )
+  }
+}
+
+class ProductName extends Component{
+  render(){
+    const rows = [];
+    let lastCategory = null; 
+    this.props.products.forEach(product => {
+      if(product.category !== lastCategory){
+          rows.push(
+            <ProductCategoryRow
+            category={product.category}
+            key={product.category}
+            />
+          )
+      }
+      rows.push(
+        <ProductRow
+        product={product}
+        key={product.name}
+        />
+      )
+      lastCategory = product.category;
+    });
+    return(
+     <table>
+       <thead>
+         <tr>
+           <th>Name</th>
+           <th>Price</th>
+         </tr>
+       </thead>
+       <tbody>{rows}</tbody>
+     </table>
+    )
+  }
+}
+
+class SearchBar extends Component{
   constructor(){
     super()
     this.state = {
-      isToggleOn: true
+      checkbox: false,
+      value: ''
     }
   }
-  handleLoginClick = e => {
+
+  handleInput = e => {
     this.setState({
-      isToggleOn: true
+      value: e.target.value
     })
   }
-  handleLogoutClick = e => {
-    this.setState({
-      isToggleOn: false
-    })
-  }
-  // handleClick = (e,id) => {
-  //   this.setState(state => ({
-  //     isToggleOn: !state.isToggleOn
-  //   }))
-  // }
-  
-  render() {
-    const isLoggedin = this.state.isToggleOn;
-    let button;
-    if (isLoggedin){
-      button = <Logout onClick={this.handleLogoutClick}/>
-    }
-    else{
-      button = <Login onClick={this.handleLoginClick}/>
-    }
-    return (
-      <div>
-        <Greeting isLoggedIn={isLoggedin}/>
-        {button}
-      </div>
-    );
+  render(){
+
+    return(
+      <form>
+        <input type="text" placeholder="Search..." onChange={this.handleInput}/>          
+        <p>
+          <input type="checkbox" />
+          {' '}
+          Only show products in stock
+        </p>
+      </form>
+    )
   }
 }
+
+class App extends Component {
+
+
+  render() {
+    return (
+      <div>
+        <SearchBar/>
+        <ProductName products={PRODUCTS}/>
+      </div>
+    )
+  }
+}
+
+
+const PRODUCTS = [
+  {category: 'Sporting Goods', price: '$49.99', stocked: true, name: 'Football'},
+  {category: 'Sporting Goods', price: '$9.99', stocked: true, name: 'Baseball'},
+  {category: 'Sporting Goods', price: '$29.99', stocked: false, name: 'Basketball'},
+  {category: 'Electronics', price: '$99.99', stocked: true, name: 'iPod Touch'},
+  {category: 'Electronics', price: '$399.99', stocked: false, name: 'iPhone 5'},
+  {category: 'Electronics', price: '$199.99', stocked: true, name: 'Nexus 7'}
+];
 
 export default App;
